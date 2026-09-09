@@ -1,0 +1,12 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+markers = [
+    "api: tests requiring a real HTTP API",
+    "unit: isolated tests without network access",
+    "ui: browser-based end-to-end tests",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["api", "utils"]
