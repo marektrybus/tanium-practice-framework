@@ -80,9 +80,10 @@ jobs:
             --output test-results
 
       - name: Upload Playwright artifacts
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v5
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-artifacts
           path: test-results/
+          if-no-files-found: ignore
           retention-days: 7
