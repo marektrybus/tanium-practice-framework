@@ -31,3 +31,19 @@ def test_get_user_send_expected_request(
     client.close()
 
     session.close.assert_called_once_with()
+
+@pytest.mark.unit
+@patch("api.jsonplaceholder_client.requests.Session")
+def test_client_sets_bearer_token_when_token_is_provided(
+    session_factory: Mock,
+) -> None:
+    session = session_factory.return_value
+
+    JsonPlaceholderClient(
+        base_url="https://jsonplaceholder.typicode.com/users/7",
+        token="test-token"
+    )
+
+    session.headers.update.assert_called_once_with(
+        {"Authorization": "Bearer test-token"},
+    )

@@ -1,6 +1,11 @@
+import socket
+import subprocess
+import sys
+import time
 from collections.abc import Iterator
 
 import pytest
+import requests
 from playwright.sync_api import Page
 
 from api.jsonplaceholder_client import JsonPlaceholderClient
@@ -29,3 +34,40 @@ def todo_page(page: Page) -> TodoPage:
     todo_page.open()
 
     return todo_page
+
+@pytest.fixture
+def local_app_url() -> Iterator[str]:
+    with socket.socket() as socket_server:
+        socket_server.bind(("127.0.0.1", 0))
+        port = socket_server.getsockname()[1]
+
+    base_url = f"http://127.0.0.1:{port}"
+    process = subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "uvicorn",
+            "app.main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            str(port),
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+    for _ in range(50):
+        try:
+            requests.get(f"{base_url}/openapi.json", timeout=0.2)
+            break
+        except requests.ConnectionError:
+            time.sleep(0.1)
+    else:
+        process.terminate()
+        raise RuntimeError("Local FastAPI server did not start.")
+
+    yield base_url
+
+    process.terminate()
+    process.wait()

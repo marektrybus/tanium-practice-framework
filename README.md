@@ -1,7 +1,8 @@
 # Tanium Practice Framework
 
 An educational project for learning test automation in Python. It includes
-unit, API, and UI tests built with `pytest`, `requests`, and Playwright.
+unit, API, UI, and end-to-end integration tests built with `pytest`, FastAPI,
+`requests`, and Playwright.
 
 ## Prerequisites
 
@@ -16,7 +17,7 @@ Create and activate a virtual environment in the project directory:
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install pytest requests ruff pytest-playwright
+python -m pip install -r requirements.txt
 python -m playwright install chromium
 ```
 
@@ -31,11 +32,12 @@ The output should point to `.venv/bin/python` within this project.
 ## Project structure
 
 ```text
-api/       REST API client
-config/    Environment-variable configuration
-pages/     Page Objects for UI tests
-utils/     Shared response validators and helpers
-tests/     Test scenarios and pytest fixtures
+app/        Local FastAPI Todo application
+api/        REST API clients
+config/     Environment-variable configuration
+pages/      Page Objects for UI tests
+utils/      Shared response validators and helpers
+tests/      Test scenarios and pytest fixtures
 ```
 
 ## Code quality
@@ -75,10 +77,24 @@ Run only API tests:
 python -m pytest -m api -v
 ```
 
+Run tests for the local FastAPI Todo API. The application runs in-process
+through FastAPI's `TestClient`:
+
+```bash
+python -m pytest -m local_api -v
+```
+
 Run only UI tests:
 
 ```bash
 python -m pytest -m ui -v
+```
+
+Run integration tests. These start the local FastAPI application, create a
+todo through its REST API, and verify the same todo in the browser:
+
+```bash
+python -m pytest -m integration -v
 ```
 
 Run one test file:
@@ -92,6 +108,14 @@ Run one test:
 ```bash
 python -m pytest tests/ui/test_todos.py::test_user_can_delete_a_todo -v
 ```
+
+Available markers:
+
+- `unit` — isolated tests without network access.
+- `api` — tests requiring the external JSONPlaceholder API.
+- `local_api` — tests of the locally owned FastAPI Todo API.
+- `ui` — browser-based Playwright tests.
+- `integration` — tests that cross API, application, and UI layers.
 
 ## Playwright: observing and debugging UI tests
 
@@ -110,6 +134,12 @@ python -m pytest -m ui -v --headed --slowmo 1000
 
 The `--slowmo` value is specified in milliseconds. For example, `500` means a
 half-second delay between actions.
+
+The same options can be used to observe the integration test locally:
+
+```bash
+python -m pytest -m integration -v --headed --slowmo 1000
+```
 
 To launch Playwright Inspector and step through actions:
 
