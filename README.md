@@ -29,6 +29,21 @@ which python
 
 The output should point to `.venv/bin/python` within this project.
 
+## Running the local Todo application
+
+With the virtual environment activated, start the local FastAPI application:
+
+```bash
+python -m uvicorn app.main:app --reload
+```
+
+Open the Todo UI at [http://127.0.0.1:8000](http://127.0.0.1:8000). FastAPI's
+interactive OpenAPI documentation is available at
+[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+
+The `--reload` option restarts the server after changes to the application
+code. Stop the server with <kbd>Control</kbd> + <kbd>C</kbd> in its terminal.
+
 ## Project structure
 
 ```text
