@@ -12,3 +12,9 @@ class LocalTodoClient:
             json={"title": title},
             timeout=10,
         )
+
+    def get_todos(self) -> Response:
+        return requests.get(
+            f"{self.base_url}/api/todos",
+            timeout=10,
+        )

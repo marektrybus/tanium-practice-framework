@@ -23,18 +23,60 @@ def todo_page() -> str:
          for todo in todos.values()
     )
 
-    return f"""
-    <!doctype html>
-    <html lang="en">
-      <head>
-        <title>Local Todos</title>
-      </head>
-      <body>
-        <h1>Local Todos</h1>
-        <ul>{todo_items}</ul>
-      </body>
-    </html>
-    """
+    return (
+        """<!doctype html>
+        <html lang="en">
+          <head>
+            <title>Local Todos</title>
+          </head>
+          <body>
+            <h1>Local Todos</h1>
+
+            <input
+              data-testid="new-todo-input"
+              placeholder="What needs to be done?"
+            />
+            <button data-testid="add-todo">Add todo</button>
+
+            <ul data-testid="todo-list">"""
+        + todo_items
+        + """</ul>
+
+            <script>
+              const input = document.querySelector(
+                '[data-testid="new-todo-input"]',
+              );
+              const button = document.querySelector(
+                '[data-testid="add-todo"]',
+              );
+              const todoList = document.querySelector(
+                '[data-testid="todo-list"]',
+              );
+
+              button.addEventListener("click", async () => {
+                const title = input.value.trim();
+
+                if (!title) {
+                  return;
+                }
+
+                const response = await fetch("/api/todos", {
+                  method: "POST",
+                  headers: {"Content-Type": "application/json"},
+                  body: JSON.stringify({title}),
+                });
+                const todo = await response.json();
+
+                const todoItem = document.createElement("li");
+                todoItem.dataset.testid = "todo-item";
+                todoItem.textContent = todo.title;
+                todoList.appendChild(todoItem);
+                input.value = "";
+              });
+            </script>
+          </body>
+        </html>"""
+    )
 
 @app.get("/api/todos", response_model=list[Todo])
 def get_todos() -> list[Todo]:
