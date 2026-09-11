@@ -2,7 +2,7 @@ from html import escape
 
 from fastapi import FastAPI, HTTPException, Response, status
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 app = FastAPI(title="Local Todo Application")
 
@@ -11,6 +11,16 @@ next_todo_id = 1
 
 class TodoCreate(BaseModel):
     title: str = Field(min_length=1, max_length=100)
+
+    @field_validator("title")
+    @classmethod
+    def title_must_not_be_blank(cls, title: str) -> str:
+        normalized_title = title.strip()
+
+        if not normalized_title:
+            raise ValueError("Title must not be blank.")
+
+        return normalized_title
 
 class Todo(BaseModel):
     id: int
@@ -87,7 +97,6 @@ def get_todos() -> list[Todo]:
     response_model=Todo,
     status_code=status.HTTP_201_CREATED,
 )
-
 def create_todo(payload: TodoCreate) -> Todo:
     global next_todo_id
 
