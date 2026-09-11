@@ -43,3 +43,29 @@ def test_todo_created_by_ui_is_available_through_api(
     assert get_response.json() == [
         {"id": 1, "title": todo_title},
     ]
+
+@pytest.mark.integration
+def test_todo_deleted_by_ui_is_removed_through_api(
+    page: Page,
+    local_app_url: str,
+) -> None:
+    todo_title = "Todo deleted through the UI"
+    api_client = LocalTodoClient(local_app_url)
+
+    create_response = api_client.create_todo(todo_title)
+
+    assert create_response.status_code == 201
+
+    todo_page = LocalTodoPage(page, local_app_url)
+    todo_page.open()
+
+    expect(todo_page.todo_with_text(todo_title)).to_be_visible()
+
+    todo_page.delete_todo(todo_title)
+
+    expect(todo_page.todo_with_text(todo_title)).to_have_count(0)
+
+    get_response = api_client.get_todos()
+
+    assert get_response.status_code == 200
+    assert get_response.json() == []

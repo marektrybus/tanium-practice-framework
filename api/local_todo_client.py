@@ -18,3 +18,4 @@ class LocalTodoClient:
             f"{self.base_url}/api/todos",
             timeout=10,
         )
+    

@@ -18,3 +18,7 @@ class LocalTodoPage:
     def add_todo(self, todo_text: str) -> None:
         self.new_todo_input.fill(todo_text)
         self.add_todo_button.click()
+
+    def delete_todo(self, todo_text: str) -> None:
+        todo_to_delete = self.todo_with_text(todo_text)
+        todo_to_delete.get_by_test_id("delete-todo").click()

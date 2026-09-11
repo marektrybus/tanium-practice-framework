@@ -29,8 +29,19 @@ class Todo(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 def todo_page() -> str:
     todo_items = "\n".join(
-         f'<li data-testid="todo-item">{escape(todo.title)}</li>'
-         for todo in todos.values()
+        f"""
+        <li data-testid="todo-item" data-todo-id="{todo.id}">
+          <span>{escape(todo.title)}</span>
+          <button
+            type="button"
+            data-testid="delete-todo"
+            aria-label="Delete"
+          >
+            Delete
+          </button>
+        </li>
+        """
+        for todo in todos.values()
     )
 
     return (
@@ -63,6 +74,24 @@ def todo_page() -> str:
                 '[data-testid="todo-list"]',
               );
 
+              function appendTodo(todo) {
+                const todoItem = document.createElement("li");
+                todoItem.dataset.testid = "todo-item";
+                todoItem.dataset.todoId = todo.id;
+
+                const todoText = document.createElement("span");
+                todoText.textContent = todo.title;
+
+                const deleteButton = document.createElement("button");
+                deleteButton.type = "button";
+                deleteButton.dataset.testid = "delete-todo";
+                deleteButton.setAttribute("aria-label", "Delete");
+                deleteButton.textContent = "Delete";
+
+                todoItem.append(todoText, deleteButton);
+                todoList.appendChild(todoItem);
+              }
+
               button.addEventListener("click", async () => {
                 const title = input.value.trim();
 
@@ -77,11 +106,35 @@ def todo_page() -> str:
                 });
                 const todo = await response.json();
 
-                const todoItem = document.createElement("li");
-                todoItem.dataset.testid = "todo-item";
-                todoItem.textContent = todo.title;
-                todoList.appendChild(todoItem);
+                appendTodo(todo);
                 input.value = "";
+              });
+
+              todoList.addEventListener("click", async (event) => {
+                const deleteButton = event.target.closest(
+                  '[data-testid="delete-todo"]',
+                );
+
+                if (!deleteButton) {
+                  return;
+                }
+
+                const todoItem = deleteButton.closest(
+                  '[data-testid="todo-item"]',
+                );
+
+                if (!todoItem) {
+                  return;
+                }
+
+                const todoId = todoItem.dataset.todoId;
+                const response = await fetch(`/api/todos/${todoId}`, {
+                  method: "DELETE",
+                });
+
+                if (response.status === 204) {
+                  todoItem.remove();
+                }
               });
             </script>
           </body>
