@@ -1,3 +1,4 @@
+import os
 import socket
 import subprocess
 import sys
@@ -36,12 +37,16 @@ def todo_page(page: Page) -> TodoPage:
     return todo_page
 
 @pytest.fixture
-def local_app_url() -> Iterator[str]:
+def local_app_url(
+    local_todo_api_token: str,
+    ) -> Iterator[str]:
     with socket.socket() as socket_server:
         socket_server.bind(("127.0.0.1", 0))
         port = socket_server.getsockname()[1]
 
     base_url = f"http://127.0.0.1:{port}"
+    process_environment = os.environ.copy()
+    process_environment["TODO_API_TOKEN"] = local_todo_api_token
     process = subprocess.Popen(
         [
             sys.executable,
@@ -55,6 +60,7 @@ def local_app_url() -> Iterator[str]:
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
+        env=process_environment,
     )
 
     for _ in range(50):
@@ -71,3 +77,7 @@ def local_app_url() -> Iterator[str]:
 
     process.terminate()
     process.wait()
+
+@pytest.fixture
+def local_todo_api_token() -> str:
+    return "integration-test-token"

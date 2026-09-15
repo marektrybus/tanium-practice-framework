@@ -106,3 +106,23 @@ def test_todo_remains_visible_when_delete_request_fails(
 
     assert get_response.status_code == 200
     assert get_response.json() == [created_todo]
+
+@pytest.mark.integration
+def test_client_gets_protected_todo_with_bearer_token(
+    local_app_url: str,
+    local_todo_api_token: str,
+) -> None:
+    api_client = LocalTodoClient(
+        local_app_url,
+        token=local_todo_api_token,
+    )
+
+    create_response = api_client.create_todo("Protected integration todo")
+
+    assert create_response.status_code == 201
+    created_todo = create_response.json()
+
+    get_response = api_client.get_todo(created_todo["id"])
+
+    assert get_response.status_code == 200
+    assert get_response.json() == created_todo
