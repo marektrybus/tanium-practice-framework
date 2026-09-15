@@ -58,6 +58,11 @@ def todo_page() -> str:
               placeholder="What needs to be done?"
             />
             <button data-testid="add-todo">Add todo</button>
+            <p
+              data-testid="error-message"
+              role="alert"
+              hidden
+            ></p>
 
             <ul data-testid="todo-list">"""
         + todo_items
@@ -73,6 +78,20 @@ def todo_page() -> str:
               const todoList = document.querySelector(
                 '[data-testid="todo-list"]',
               );
+
+              const errorMessage = document.querySelector(
+                '[data-testid="error-message"]',
+              );
+
+              function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.hidden = false;
+              }
+
+              function clearError() {
+                errorMessage.textContent = "";
+                errorMessage.hidden = true;
+              }
 
               function appendTodo(todo) {
                 const todoItem = document.createElement("li");
@@ -93,6 +112,8 @@ def todo_page() -> str:
               }
 
               button.addEventListener("click", async () => {
+                clearError();
+
                 const title = input.value.trim();
 
                 if (!title) {
@@ -134,7 +155,10 @@ def todo_page() -> str:
 
                 if (response.status === 204) {
                   todoItem.remove();
+                  return;
                 }
+
+                showError("Could not delete todo. Please try again.");
               });
             </script>
           </body>

@@ -8,6 +8,7 @@ class LocalTodoPage:
         self.todo_items = page.get_by_test_id("todo-item")
         self.new_todo_input = page.get_by_test_id("new-todo-input")
         self.add_todo_button = page.get_by_test_id("add-todo")
+        self.error_message = page.get_by_test_id("error-message")
 
     def open(self) -> None:
         self.page.goto(self.base_url)
