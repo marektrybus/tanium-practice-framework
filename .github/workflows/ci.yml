@@ -131,4 +131,17 @@ jobs:
         run: python -m playwright install --with-deps chromium
 
       - name: Run integration tests
-        run: python -m pytest -m integration -v
+        run: |
+          python -m pytest -m integration -v \
+            --tracing retain-on-failure \
+            --screenshot only-on-failure \
+            --output test-results
+            
+      - name: Upload integration test artifacts
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: integration-playwright-artifacts
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
