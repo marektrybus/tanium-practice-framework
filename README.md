@@ -204,4 +204,24 @@ tokens in source code, `pyproject.toml`, or the repository:
 export API_TOKEN="your-local-token"
 ```
 
+### Local Todo API authentication
+
+The `GET /api/todos/{todo_id}` endpoint of the local Todo application requires
+a Bearer token. Set the token before starting the local application:
+
+```bash
+export TODO_API_TOKEN="your-local-token"
+```
+
+Example request:
+
+```bash
+curl \
+  -H "Authorization: Bearer your-local-token" \
+  http://127.0.0.1:8000/api/todos/1
+```
+
+The token is read from the environment. Do not commit real tokens to the
+repository.
+
 In production CI, secrets should come from a secure secrets store.

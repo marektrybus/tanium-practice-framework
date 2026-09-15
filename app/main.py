@@ -1,6 +1,7 @@
+import os
 from html import escape
 
-from fastapi import FastAPI, HTTPException, Response, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Response, status
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field, field_validator
 
@@ -25,6 +26,32 @@ class TodoCreate(BaseModel):
 class Todo(BaseModel):
     id: int
     title: str
+
+def require_todo_api_token(
+    authorization: str | None = Header(default=None),
+) -> None:
+    expected_token = os.getenv("TODO_API_TOKEN")
+
+    if expected_token is None:
+      raise HTTPException(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        detail="Authentication is not configured.",
+    )
+
+    if authorization is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authorization header is required.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    scheme, _, provided_token = authorization.partition(" ")
+
+    if scheme != "Bearer" or provided_token != expected_token:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid API token.",
+        )
 
 @app.get("/", response_class=HTMLResponse)
 def todo_page() -> str:
@@ -183,7 +210,16 @@ def create_todo(payload: TodoCreate) -> Todo:
 
     return todo
 
+@app.get(
+    "/api/todos/{todo_id}",
+    response_model=Todo,
+    dependencies=[Depends(require_todo_api_token)],
+)
+def get_todo(todo_id: int) -> Todo:
+    if todo_id not in todos:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
+    return todos[todo_id]
 
 @app.delete("/api/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_todo(todo_id: int) -> Response:
