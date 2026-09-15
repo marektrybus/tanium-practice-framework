@@ -17,4 +17,5 @@ markers = [
 known-first-party = ["api", "utils"]
 
 [tool.coverage.run]
-concurrency = ["greenlet"]
+branch = true
+concurrency = ["thread", "greenlet"]

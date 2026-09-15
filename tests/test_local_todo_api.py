@@ -86,3 +86,24 @@ def test_delete_missing_todo_returns_not_found() -> None:
     response = client.delete("/api/todos/999")
 
     assert response.status_code == 404
+
+@pytest.mark.local_api
+def test_todo_page_renders_todo_and_escapes_html() -> None:
+    unsafe_title = "<img src=x onerror=alert(1)>"
+
+    create_response = client.post(
+        "/api/todos",
+        json={"title": unsafe_title},
+    )
+
+    assert create_response.status_code == 201
+
+    page_response = client.get("/")
+
+    assert page_response.status_code == 200
+    assert 'data-testid="new-todo-input"' in page_response.text
+    assert 'data-testid="add-todo"' in page_response.text
+    assert 'data-testid="todo-item"' in page_response.text
+    assert 'data-testid="delete-todo"' in page_response.text
+    assert "&lt;img src=x onerror=alert(1)&gt;" in page_response.text
+    assert unsafe_title not in page_response.text
