@@ -10,7 +10,9 @@ import requests
 from playwright.sync_api import Page
 
 from api.jsonplaceholder_client import JsonPlaceholderClient
+from api.local_todo_client import LocalTodoClient
 from config.settings import get_api_base_url, get_api_token
+from pages.local_todo_page import LocalTodoPage
 from pages.todo_page import TodoPage
 
 
@@ -81,3 +83,34 @@ def local_app_url(
 @pytest.fixture
 def local_todo_api_token() -> str:
     return "integration-test-token"
+
+@pytest.fixture
+def local_todo_client(
+    local_app_url: str,
+    local_todo_api_token: str,
+) -> Iterator[LocalTodoClient]:
+    client = LocalTodoClient(
+        local_app_url,
+        token=local_todo_api_token,
+    )
+
+    yield client
+
+    client.close()
+
+@pytest.fixture
+def local_todo_page(
+    page: Page,
+    local_app_url: str,
+) -> LocalTodoPage:
+    return LocalTodoPage(page, local_app_url)
+
+@pytest.fixture
+def unauthenticated_local_todo_client(
+    local_app_url: str,
+) -> Iterator[LocalTodoClient]:
+    client = LocalTodoClient(local_app_url)
+
+    yield client
+
+    client.close()

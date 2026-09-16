@@ -34,4 +34,6 @@ class LocalTodoClient:
             f"{self.base_url}/api/todos/{todo_id}",
             timeout=10,
         )
-    
+
+    def close(self) -> None:
+        self.session.close()
