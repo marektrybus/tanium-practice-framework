@@ -21,6 +21,7 @@ def test_todo_created_by_api_is_visible_in_ui(
     expect(local_todo_page.todo_with_text(todo_title)).to_have_count(1)
     expect(local_todo_page.todo_with_text(todo_title)).to_be_visible()
 
+
 @pytest.mark.integration
 def test_todo_created_by_ui_is_available_through_api(
     local_todo_page: LocalTodoPage,
@@ -40,6 +41,7 @@ def test_todo_created_by_ui_is_available_through_api(
     assert get_response.json() == [
         {"id": 1, "title": todo_title},
     ]
+
 
 @pytest.mark.integration
 def test_todo_deleted_by_ui_is_removed_through_api(
@@ -65,6 +67,7 @@ def test_todo_deleted_by_ui_is_removed_through_api(
     assert get_response.status_code == 200
     assert get_response.json() == []
 
+
 @pytest.mark.integration
 def test_todo_remains_visible_when_delete_request_fails(
     local_todo_client: LocalTodoClient,
@@ -85,7 +88,7 @@ def test_todo_remains_visible_when_delete_request_fails(
             status=500,
             content_type="application/json",
             body='{"detail": "Database unavilable"}',
-        )
+        ),
     )
 
     local_todo_page.delete_todo(todo_title)
@@ -99,6 +102,7 @@ def test_todo_remains_visible_when_delete_request_fails(
 
     assert get_response.status_code == 200
     assert get_response.json() == [created_todo]
+
 
 @pytest.mark.integration
 def test_client_gets_protected_todo_with_bearer_token(
@@ -114,6 +118,7 @@ def test_client_gets_protected_todo_with_bearer_token(
 
     assert get_response.status_code == 200
     assert get_response.json() == created_todo
+
 
 @pytest.mark.integration
 def test_client_without_token_can_create_public_todo(

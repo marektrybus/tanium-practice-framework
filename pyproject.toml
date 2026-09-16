@@ -1,7 +1,7 @@
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "-ra"
+addopts = "-ra --strict-markers"
 filterwarnings = [
   "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning:starlette.testclient",
 ]

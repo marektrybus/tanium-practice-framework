@@ -18,6 +18,7 @@ def test_get_json_object_fails_with_dignostics_for_invalid_json() -> None:
 
     assert "HTTP status: 502" in str(error.value)
 
+
 @pytest.mark.unit
 def test_get_json_object_fails_when_json_is_not_an_object() -> None:
     response = Mock(spec=Response)

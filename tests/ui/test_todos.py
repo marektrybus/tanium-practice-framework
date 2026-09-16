@@ -15,6 +15,7 @@ def test_user_can_add_a_todo(todo_page: TodoPage) -> None:
     expect(todo_item).to_have_count(1)
     expect(todo_item).to_be_visible()
 
+
 @pytest.mark.ui
 def test_user_can_delete_a_todo(todo_page: TodoPage) -> None:
     todo_text = "todo to delete"

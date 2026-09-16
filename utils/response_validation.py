@@ -12,15 +12,16 @@ def assert_status_code(response: Any, expected_status: int) -> None:
 
 
 def assert_required_fields(
-        payload: dict[str, Any], 
-        required_fields: list[str],
-    ) -> None:
+    payload: dict[str, Any],
+    required_fields: list[str],
+) -> None:
     missing_fields = [field for field in required_fields if field not in payload]
 
     assert not missing_fields, (
         f"Response is missing required fields: {missing_fields}. "
         f"Actual response: {payload}"
     )
+
 
 def get_json_object(response: Response) -> dict[str, Any]:
     try:
@@ -38,5 +39,5 @@ def get_json_object(response: Response) -> dict[str, Any]:
             f"but was decoded as: {type(payload).__name__}. "
             f"Actual response: {payload}"
         )
-    
+
     return payload

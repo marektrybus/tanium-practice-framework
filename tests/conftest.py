@@ -20,16 +20,18 @@ from pages.todo_page import TodoPage
 def api_base_url() -> str:
     return get_api_base_url()
 
+
 @pytest.fixture
 def api_client(api_base_url: str) -> Iterator[JsonPlaceholderClient]:
     client = JsonPlaceholderClient(
         base_url=api_base_url,
         token=get_api_token(),
-        )
+    )
 
     yield client
 
     client.close()
+
 
 @pytest.fixture
 def todo_page(page: Page) -> TodoPage:
@@ -38,10 +40,11 @@ def todo_page(page: Page) -> TodoPage:
 
     return todo_page
 
+
 @pytest.fixture
 def local_app_url(
     local_todo_api_token: str,
-    ) -> Iterator[str]:
+) -> Iterator[str]:
     with socket.socket() as socket_server:
         socket_server.bind(("127.0.0.1", 0))
         port = socket_server.getsockname()[1]
@@ -80,9 +83,11 @@ def local_app_url(
     process.terminate()
     process.wait()
 
+
 @pytest.fixture
 def local_todo_api_token() -> str:
     return "integration-test-token"
+
 
 @pytest.fixture
 def local_todo_client(
@@ -98,12 +103,14 @@ def local_todo_client(
 
     client.close()
 
+
 @pytest.fixture
 def local_todo_page(
     page: Page,
     local_app_url: str,
 ) -> LocalTodoPage:
     return LocalTodoPage(page, local_app_url)
+
 
 @pytest.fixture
 def unauthenticated_local_todo_client(

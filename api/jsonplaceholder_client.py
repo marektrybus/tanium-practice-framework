@@ -8,9 +8,7 @@ class JsonPlaceholderClient:
         self.session = requests.Session()
 
         if token:
-            self.session.headers.update(
-                {"Authorization": f"Bearer {token}"}
-            )
+            self.session.headers.update({"Authorization": f"Bearer {token}"})
 
     def get_user(self, user_id: int) -> Response:
         return self.session.get(

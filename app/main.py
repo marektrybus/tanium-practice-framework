@@ -10,6 +10,7 @@ app = FastAPI(title="Local Todo Application")
 todos: dict[int, "Todo"] = {}
 next_todo_id = 1
 
+
 class TodoCreate(BaseModel):
     title: str = Field(min_length=1, max_length=100)
 
@@ -23,9 +24,11 @@ class TodoCreate(BaseModel):
 
         return normalized_title
 
+
 class Todo(BaseModel):
     id: int
     title: str
+
 
 def require_todo_api_token(
     authorization: str | None = Header(default=None),
@@ -33,10 +36,10 @@ def require_todo_api_token(
     expected_token = os.getenv("TODO_API_TOKEN")
 
     if expected_token is None:
-      raise HTTPException(
-        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-        detail="Authentication is not configured.",
-    )
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication is not configured.",
+        )
 
     if authorization is None:
         raise HTTPException(
@@ -52,6 +55,7 @@ def require_todo_api_token(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid API token.",
         )
+
 
 @app.get("/", response_class=HTMLResponse)
 def todo_page() -> str:
@@ -192,9 +196,11 @@ def todo_page() -> str:
         </html>"""
     )
 
+
 @app.get("/api/todos", response_model=list[Todo])
 def get_todos() -> list[Todo]:
     return list(todos.values())
+
 
 @app.post(
     "/api/todos",
@@ -210,6 +216,7 @@ def create_todo(payload: TodoCreate) -> Todo:
 
     return todo
 
+
 @app.get(
     "/api/todos/{todo_id}",
     response_model=Todo,
@@ -220,6 +227,7 @@ def get_todo(todo_id: int) -> Todo:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
     return todos[todo_id]
+
 
 @app.delete("/api/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_todo(todo_id: int) -> Response:
