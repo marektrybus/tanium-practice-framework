@@ -30,6 +30,10 @@ class Todo(BaseModel):
     title: str
 
 
+class ErrorResponse(BaseModel):
+    detail: str
+
+
 def require_todo_api_token(
     authorization: str | None = Header(default=None),
 ) -> None:
@@ -221,6 +225,24 @@ def create_todo(payload: TodoCreate) -> Todo:
     "/api/todos/{todo_id}",
     response_model=Todo,
     dependencies=[Depends(require_todo_api_token)],
+    responses={
+        401: {
+            "model": ErrorResponse,
+            "description": "Authorization header is required.",
+        },
+        403: {
+            "model": ErrorResponse,
+            "description": "The Bearer token is invalid.",
+        },
+        404: {
+            "model": ErrorResponse,
+            "description": "The requested todo does not exist.",
+        },
+        503: {
+            "model": ErrorResponse,
+            "description": "Authentication is not configured.",
+        },
+    },
 )
 def get_todo(todo_id: int) -> Todo:
     if todo_id not in todos:

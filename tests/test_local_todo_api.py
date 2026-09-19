@@ -114,6 +114,9 @@ def test_get_todo_requires_authorization() -> None:
 
     assert response.status_code == 401
     assert response.headers["WWW-Authenticate"] == "Bearer"
+    assert response.json() == {
+        "detail": "Authorization header is required.",
+    }
 
 
 @pytest.mark.local_api
@@ -180,3 +183,43 @@ def test_get_todo_returns_service_unavailable_without_token_configuration(
 
     assert response.status_code == 503
     assert response.json()["detail"] == "Authentication is not configured."
+
+
+@pytest.mark.local_api
+def test_openapi_documents_protected_todo_contract() -> None:
+    response = client.get("/openapi.json")
+
+    assert response.status_code == 200
+
+    openapi_schema = response.json()
+    get_todo_operation = openapi_schema["paths"]["/api/todos/{todo_id}"]["get"]
+
+    documented_status_codes = set(
+        get_todo_operation["responses"],
+    )
+
+    assert {
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "503",
+    }.issubset(documented_status_codes)
+
+    authorization_parameter = next(
+        parameter
+        for parameter in get_todo_operation["parameters"]
+        if parameter["name"] == "authorization"
+    )
+
+    assert authorization_parameter["in"] == "header"
+
+    for status_code in ("401", "403", "404", "503"):
+        response_schema = get_todo_operation["responses"][status_code]["content"][
+            "application/json"
+        ]["schema"]
+
+    assert response_schema == {
+        "$ref": "#/components/schemas/ErrorResponse",
+    }
