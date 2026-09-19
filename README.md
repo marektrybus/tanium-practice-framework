@@ -55,6 +55,11 @@ utils/      Shared response validators and helpers
 tests/      Test scenarios and pytest fixtures
 ```
 
+## Test strategy
+
+See [TEST_STRATEGY.md](TEST_STRATEGY.md) for the test layers, data isolation
+approach, API contract coverage, CI strategy, and known limitations.
+
 ## Code quality
 
 Run the linter:
